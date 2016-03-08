@@ -61,6 +61,7 @@
     "backbone-paginated-collection": "^0.3.6",
     "backbone-sorted-collection": "^0.3.8",
     "jquery": "^2.2.1",
+    "lodash": "^4.6.1",
     "underscore": "^1.8.3"
   }
 }
