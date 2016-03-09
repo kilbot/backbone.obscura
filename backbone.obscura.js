@@ -1,1 +1,1400 @@
-!function(t,e){"object"==typeof exports&&"object"==typeof module?module.exports=e(require("_"),require("Backbone")):"function"==typeof define&&define.amd?define(["_","Backbone"],e):"object"==typeof exports?exports.Obscura=e(require("_"),require("Backbone")):(t.Backbone=t.Backbone||{},t.Backbone.Obscura=e(t._,t.Backbone))}(this,function(t,e){return function(t){function e(s){if(i[s])return i[s].exports;var r=i[s]={exports:{},id:s,loaded:!1};return t[s].call(r.exports,r,r.exports,e),r.loaded=!0,r.exports}var i={};return e.m=t,e.c=i,e.p="",e(0)}([function(t,e,i){function s(t,e){this._superset=t,this._filtered=new o(t,e),this._sorted=new h(this._filtered,e),this._paginated=new a(this._sorted,e),l(this._paginated,this),c.call(this,this._filtered,g),c.call(this,this._sorted,d),c.call(this,this._paginated,v),this.initialize(e)}var r=i(1),n=i(2),o=i(3),h=i(6),a=i(8),l=i(4),c=i(9),u={superset:function(){return this._superset},getFilteredLength:function(){return this._filtered.length},removeTransforms:function(){return this._filtered.resetFilters(),this._sorted.removeSort(),this._paginated.removePagination(),this},destroy:function(){this.stopListening(),this._filtered.destroy(),this._sorted.destroy(),this._paginated.destroy(),this.length=0,this.trigger("obscura:destroy")}},f=["filterBy","removeFilter","resetFilters","refilter","hasFilter","getFilters"],g=["filtered:add","filtered:remove","filtered:reset"],p=["setSort","reverseSort","removeSort"],d=["sorted:add","sorted:remove"],_=["setPerPage","setPage","getPerPage","getNumPages","getPage","hasNextPage","hasPrevPage","nextPage","prevPage","movePage","removePagination","firstPage","lastPage"],v=["paginated:change:perPage","paginated:change:page","paginated:change:numPages"],P=["add","create","remove","set","reset","sort","parse","sync","fetch","push","pop","shift","unshift"];r.each(f,function(t){u[t]=function(){var e=o.prototype[t].apply(this._filtered,arguments);return e===this._filtered?this:e}}),r.each(_,function(t){u[t]=function(){var e=a.prototype[t].apply(this._paginated,arguments);return e===this._paginated?this:e}}),r.each(p,function(t){u[t]=function(){var e=h.prototype[t].apply(this._sorted,arguments);return e===this._sorted?this:e}}),r.each(P,function(t){u[t]=function(){throw new Error("Backbone.Obscura: Unsupported method: "+t+"called on read-only proxy")}}),r.extend(s.prototype,u,n.Events),s=n.Collection.extend(s.prototype),s.FilteredCollection=o,s.SortedCollection=h,s.PaginatedCollection=a,t.exports=s},function(e,i){e.exports=t},function(t,i){t.exports=e},function(t,e,i){function s(){this._filterResultCache={}}function r(t){for(var e in this._filterResultCache)this._filterResultCache.hasOwnProperty(e)&&delete this._filterResultCache[e][t]}function n(t,e){this._filters[t]&&r.call(this,t),this._filters[t]=e,this.trigger("filtered:add",t)}function o(t){delete this._filters[t],r.call(this,t),this.trigger("filtered:remove",t)}function h(t){this._filterResultCache[t.cid]||(this._filterResultCache[t.cid]={});var e=this._filterResultCache[t.cid];for(var i in this._filters)if(this._filters.hasOwnProperty(i)&&(e.hasOwnProperty(i)||(e[i]=this._filters[i].fn(t)),!e[i]))return!1;return!0}function a(){var t=[];this._superset&&(t=this._superset.filter(p.bind(h,this))),this._collection.reset(t),this.length=this._collection.length}function l(t){if(this._filterResultCache[t.cid]={},h.call(this,t)){if(!this._collection.get(t.cid)){for(var e=this.superset().indexOf(t),i=null,s=e-1;s>=0;s-=1)if(this.contains(this.superset().at(s))){i=this.indexOf(this.superset().at(s))+1;break}i=i||0,this._collection.add(t,{at:i})}}else this._collection.get(t.cid)&&this._collection.remove(t);this.length=this._collection.length}function c(t){this._filterResultCache[t.cid]={},h.call(this,t)||this._collection.get(t.cid)&&this._collection.remove(t)}function u(t,e,i){"change:"===t.slice(0,7)&&c.call(this,arguments[1])}function f(t){this.contains(t)&&this._collection.remove(t),this.length=this._collection.length}function g(t){this._superset=t,this._collection=new d.Collection(t.toArray()),_(this._collection,this),this.resetFilters(),this.listenTo(this._superset,"reset sort",a),this.listenTo(this._superset,"add change",l),this.listenTo(this._superset,"remove",f),this.listenTo(this._superset,"all",u)}var p=i(1),d=i(2),_=i(4),v=i(5),P={defaultFilterName:"__default",filterBy:function(t,e){return e||(e=t,t=this.defaultFilterName),n.call(this,t,v(e)),a.call(this),this},removeFilter:function(t){return t||(t=this.defaultFilterName),o.call(this,t),a.call(this),this},resetFilters:function(){return this._filters={},s.call(this),this.trigger("filtered:reset"),a.call(this),this},superset:function(){return this._superset},refilter:function(t){return"object"==typeof t&&t.cid?l.call(this,t):(s.call(this),a.call(this)),this},getFilters:function(){return p.keys(this._filters)},hasFilter:function(t){return p.contains(this.getFilters(),t)},destroy:function(){this.stopListening(),this._collection.reset([]),this._superset=this._collection,this.length=0,this.trigger("filtered:destroy")}};p.extend(g.prototype,P,d.Events),t.exports=g},function(t,e,i){function s(t,e){function i(){e.length=t.length}function s(i){var s=r.toArray(arguments),n="change"===i||"change:"===i.slice(0,7);"reset"===i&&(e.models=t.models),r.contains(h,i)?(r.contains(["add","remove","destroy"],i)?s[2]=e:r.contains(["reset","sort"],i)&&(s[1]=e),e.trigger.apply(this,s)):n&&e.contains(s[1])&&e.trigger.apply(this,s)}var a={};return r.each(r.functions(n.Collection.prototype),function(e){r.contains(o,e)||(a[e]=function(){return t[e].apply(t,arguments)})}),r.extend(e,n.Events,a),e.listenTo(t,"all",i),e.listenTo(t,"all",s),e.models=t.models,i(),e}var r=i(1),n=i(2),o=["_onModelEvent","_prepareModel","_removeReference","_reset","add","initialize","sync","remove","reset","set","push","pop","unshift","shift","sort","parse","fetch","create","model","off","on","listenTo","listenToOnce","bind","trigger","once","stopListening"],h=["add","remove","reset","sort","destroy","sync","request","error"];t.exports=s},function(t,e,i){function s(t,e){return function(i){return i.get(t)===e}}function r(t,e){return function(i){return e(i.get(t))}}function n(t,e){return a.isArray(e)||(e=null),{fn:t,keys:e}}function o(t){var e=a.keys(t),i=a.map(e,function(e){var i=t[e];return a.isFunction(i)?r(e,i):s(e,i)}),o=function(t){for(var e=0;e<i.length;e++)if(!i[e](t))return!1;return!0};return n(o,e)}function h(t,e){return a.isFunction(t)?n(t,e):a.isObject(t)?o(t):void 0}var a=i(1);t.exports=h},function(t,e,i){function s(t){return c.isFunction(t)?t:function(e){return e.get(t)}}function r(t){return this._comparator?this._reverse?g(this._collection.toArray(),t,s(this._comparator)):c.sortedIndex(this._collection.toArray(),t,s(this._comparator)):this._superset.indexOf(t)}function n(t){var e=r.call(this,t);this._collection.add(t,{at:e})}function o(t){this.contains(t)&&this._collection.remove(t)}function h(t){this.contains(t)&&this._collection.indexOf(t)!==r.call(this,t)&&(this._collection.remove(t),n.call(this,t))}function a(){if(!this._comparator)return void this._collection.reset(this._superset.toArray());var t=this._superset.sortBy(this._comparator);this._collection.reset(this._reverse?t.reverse():t)}function l(t){this._superset=t,this._reverse=!1,this._comparator=null,this._collection=new u.Collection(t.toArray()),f(this._collection,this),this.listenTo(this._superset,"add",n),this.listenTo(this._superset,"remove",o),this.listenTo(this._superset,"change",h),this.listenTo(this._superset,"reset",a)}var c=i(1),u=i(2),f=i(4),g=i(7),p={setSort:function(t,e){return this._reverse="desc"===e,this._comparator=t,a.call(this),t?this.trigger("sorted:add"):this.trigger("sorted:remove"),this},reverseSort:function(){return this._reverse=!this._reverse,a.call(this),this},removeSort:function(){return this.setSort(),this},superset:function(){return this._superset},destroy:function(){this.stopListening(),this._collection.reset([]),this._superset=this._collection,this.length=0,this.trigger("sorted:destroy")}};c.extend(l.prototype,p,u.Events),t.exports=l},function(t,e,i){function s(t){return n.isFunction(t)?t:function(e){return e[t]}}function r(t,e,i,r){i=null==i?n.identity:s(i);for(var o=i.call(r,e),h=0,a=t.length;a>h;){var l=h+a>>>1;i.call(r,t[l])<o?a=l:h=l+1}return h}var n=i(1);t.exports=r},function(t,e,i){function s(){var t=this.getPage()*this.getPerPage(),e=t+this.getPerPage();return[t,e]}function r(){var t=s.call(this);this._collection.reset(this.superset().slice(t[0],t[1]))}function n(){var t=(this._totalPages,this.superset().length),e=this.getPerPage(),i=t%e===0?t/e:Math.floor(t/e)+1,s=this._totalPages!==i;return this._totalPages=i,s&&this.trigger("paginated:change:numPages",{numPages:i}),this.getPage()>=i?(this.setPage(i-1),!0):void 0}function o(){n.call(this)||r.call(this)}function h(t,e){for(var i=c.max([t.length,e.length]),s=0,r=0;i>s;s+=1,r+=1)if(t[s]!==e[r])if(e[s-1]===t[s])r-=1;else{if(e[s+1]!==t[s])return t[s];r+=1}}function a(t,e,i){if(!n.call(this)){var r=s.call(this),o=r[0],a=r[1],l=h(this.superset().slice(o,a),this._collection.toArray()),c=h(this._collection.toArray(),this.superset().slice(o,a));c&&this._collection.remove(c),l&&this._collection.add(l,{at:this.superset().indexOf(l)-o})}}function l(t,e){this._superset=t,this._collection=new u.Collection(t.toArray()),this._page=0,this.setPerPage(e&&e.perPage?e.perPage:null),f(this._collection,this),this.listenTo(this._superset,"add remove",a),this.listenTo(this._superset,"reset sort",o)}var c=i(1),u=i(2),f=i(4),g={removePagination:function(){return this.setPerPage(null),this},setPerPage:function(t){return this._perPage=t,o.call(this),this.setPage(0),this.trigger("paginated:change:perPage",{perPage:t,numPages:this.getNumPages()}),this},setPage:function(t){var e=0,i=this.getNumPages()-1;return t=t>e?t:e,t=i>t?t:i,t=0>t?0:t,this._page=t,r.call(this),this.trigger("paginated:change:page",{page:t}),this},getPerPage:function(){return this._perPage||this.superset().length||1},getNumPages:function(){return this._totalPages},getPage:function(){return this._page},hasNextPage:function(){return this.getPage()<this.getNumPages()-1},hasPrevPage:function(){return this.getPage()>0},nextPage:function(){return this.movePage(1),this},prevPage:function(){return this.movePage(-1),this},firstPage:function(){this.setPage(0)},lastPage:function(){this.setPage(this.getNumPages()-1)},movePage:function(t){return this.setPage(this.getPage()+t),this},superset:function(){return this._superset},destroy:function(){this.stopListening(),this._collection.reset([]),this._superset=this._collection,this._page=0,this._totalPages=0,this.length=0,this.trigger("paginated:destroy")}};c.extend(l.prototype,g,u.Events),t.exports=l},function(t,e,i){function s(t,e){r.each(e,function(e){this.listenTo(t,e,function(){var t=r.toArray(arguments);t.unshift(e),this.trigger.apply(this,t)})},this)}var r=i(1);t.exports=s}])});
+(function webpackUniversalModuleDefinition(root, factory) {
+	if(typeof exports === 'object' && typeof module === 'object')
+		module.exports = factory(require("_"), require("Backbone"));
+	else if(typeof define === 'function' && define.amd)
+		define(["_", "Backbone"], factory);
+	else if(typeof exports === 'object')
+		exports["Obscura"] = factory(require("_"), require("Backbone"));
+	else
+		root["Backbone"] = root["Backbone"] || {}, root["Backbone"]["Obscura"] = factory(root["_"], root["Backbone"]);
+})(this, function(__WEBPACK_EXTERNAL_MODULE_1__, __WEBPACK_EXTERNAL_MODULE_2__) {
+return /******/ (function(modules) { // webpackBootstrap
+/******/ 	// The module cache
+/******/ 	var installedModules = {};
+
+/******/ 	// The require function
+/******/ 	function __webpack_require__(moduleId) {
+
+/******/ 		// Check if module is in cache
+/******/ 		if(installedModules[moduleId])
+/******/ 			return installedModules[moduleId].exports;
+
+/******/ 		// Create a new module (and put it into the cache)
+/******/ 		var module = installedModules[moduleId] = {
+/******/ 			exports: {},
+/******/ 			id: moduleId,
+/******/ 			loaded: false
+/******/ 		};
+
+/******/ 		// Execute the module function
+/******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
+
+/******/ 		// Flag the module as loaded
+/******/ 		module.loaded = true;
+
+/******/ 		// Return the exports of the module
+/******/ 		return module.exports;
+/******/ 	}
+
+
+/******/ 	// expose the modules object (__webpack_modules__)
+/******/ 	__webpack_require__.m = modules;
+
+/******/ 	// expose the module cache
+/******/ 	__webpack_require__.c = installedModules;
+
+/******/ 	// __webpack_public_path__
+/******/ 	__webpack_require__.p = "";
+
+/******/ 	// Load entry module and return exports
+/******/ 	return __webpack_require__(0);
+/******/ })
+/************************************************************************/
+/******/ ([
+/* 0 */
+/***/ function(module, exports, __webpack_require__) {
+
+	
+	var _ = __webpack_require__(1);
+	var Backbone = __webpack_require__(2);
+
+	var FilteredCollection = __webpack_require__(3);
+	var SortedCollection = __webpack_require__(7);
+	var PaginatedCollection = __webpack_require__(9);
+	var proxyCollection = __webpack_require__(4);
+	var proxyEvents = __webpack_require__(10);
+
+	function Obscura(superset, options) {
+	  this._superset = superset;
+
+	  this._filtered = new FilteredCollection(superset, options);
+	  this._sorted = new SortedCollection(this._filtered, options);
+	  this._paginated = new PaginatedCollection(this._sorted, options);
+
+	  proxyCollection(this._paginated, this);
+	  proxyEvents.call(this, this._filtered, filteredEvents);
+	  proxyEvents.call(this, this._sorted, sortedEvents);
+	  proxyEvents.call(this, this._paginated, paginatedEvents);
+	  this.initialize(options);
+	}
+
+	var methods = {
+
+	  superset: function() {
+	    return this._superset;
+	  },
+
+	  getFilteredLength: function() {
+	    return this._filtered.length;
+	  },
+
+	  removeTransforms: function() {
+	    this._filtered.resetFilters();
+	    this._sorted.removeSort();
+	    this._paginated.removePagination();
+	    return this;
+	  },
+
+	  destroy: function() {
+	    this.stopListening();
+	    this._filtered.destroy();
+	    this._sorted.destroy();
+	    this._paginated.destroy();
+	    this.length = 0;
+
+	    this.trigger('obscura:destroy');
+	  }
+
+	};
+
+	// Methods on `this._filtered` we will expose to the outside world
+	var filteredMethods = [
+	  'filterBy', 'removeFilter', 'resetFilters', 'refilter', 'hasFilter',
+	  'getFilters'
+	];
+
+	// Events fired from `this._filtered` that we will forward
+	var filteredEvents = [
+	  'filtered:add', 'filtered:remove', 'filtered:reset'
+	];
+
+	// Methods on `this._sorted` we will expose to the outside world
+	var sortedMethods = [ 'setSort', 'reverseSort', 'removeSort' ];
+
+	// Events fired from `this._sorted` that we will forward
+	var sortedEvents = [
+	  'sorted:add', 'sorted:remove'
+	];
+
+	// Methods on `this._paginated` we will expose to the outside world
+	var paginatedMethods = [
+	  'setPerPage', 'setPage', 'getPerPage', 'getNumPages', 'getPage',
+	  'hasNextPage', 'hasPrevPage', 'nextPage', 'prevPage', 'movePage',
+	  'removePagination', 'firstPage', 'lastPage', 'appendNextPage'
+	];
+
+	// Events fired from `this._paginated` that we will forward
+	var paginatedEvents = [
+	  'paginated:change:perPage', 'paginated:change:page', 'paginated:change:numPages'
+	];
+
+	var unsupportedMethods = [
+	  'add', 'create', 'remove', 'set', 'reset', 'sort', 'parse',
+	  'sync', 'fetch', 'push', 'pop', 'shift', 'unshift'
+	];
+
+	// Extend obscura with each of the above methods, passing the call to the underlying
+	// collection.
+	//
+	// The return value is checked because some of the methods return `this` to allow
+	// chaining, and returning the internal collection would break the abstraction. In
+	// the cases where it would return the internal collection, we can return a reference
+	// to the Obscura proxy, which gives it the expected behavior.
+
+	_.each(filteredMethods, function(method) {
+	  methods[method] = function() {
+	    var result = FilteredCollection.prototype[method].apply(this._filtered, arguments);
+	    return result === this._filtered ? this : result;
+	  };
+	});
+
+	_.each(paginatedMethods, function(method) {
+	  methods[method] = function() {
+	    var result = PaginatedCollection.prototype[method].apply(this._paginated, arguments);
+	    return result === this._paginated ? this : result;
+	  };
+	});
+
+	_.each(sortedMethods, function(method) {
+	  methods[method] = function() {
+	    var result = SortedCollection.prototype[method].apply(this._sorted, arguments);
+	    return result === this._sorted ? this : result;
+	  };
+	});
+
+	_.each(unsupportedMethods, function(method) {
+	  methods[method] = function() {
+	    throw new Error("Backbone.Obscura: Unsupported method: " + method + 'called on read-only proxy');
+	  };
+	});
+
+	_.extend(Obscura.prototype, methods, Backbone.Events);
+
+	// Now that we've over-written all of the backbone collection methods, we can safely
+	// inherit from backbone's Collection
+	Obscura = Backbone.Collection.extend(Obscura.prototype);
+
+	// Expose the other proxy types so that the user can use them on their own if they want
+	Obscura.FilteredCollection = FilteredCollection;
+	Obscura.SortedCollection = SortedCollection;
+	Obscura.PaginatedCollection = PaginatedCollection;
+
+	module.exports = Obscura;
+
+
+
+/***/ },
+/* 1 */
+/***/ function(module, exports) {
+
+	module.exports = __WEBPACK_EXTERNAL_MODULE_1__;
+
+/***/ },
+/* 2 */
+/***/ function(module, exports) {
+
+	module.exports = __WEBPACK_EXTERNAL_MODULE_2__;
+
+/***/ },
+/* 3 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var _ = __webpack_require__(1);
+	var Backbone = __webpack_require__(2);
+	var proxyCollection = __webpack_require__(4);
+	var backboneQuery = __webpack_require__(5);
+	var Parser = __webpack_require__(6);
+	var parse = new Parser();
+
+	// Beware of `this`
+	// All of the following functions are meant to be called in the context
+	// of the FilteredCollection object, but are not public functions.
+
+	function invalidateCache() {
+	  this._filterResultCache = {};
+	}
+
+	function invalidateCacheForFilter(filterName) {
+	  for (var cid in this._filterResultCache) {
+	    if (this._filterResultCache.hasOwnProperty(cid)) {
+	      delete this._filterResultCache[cid][filterName];
+	    }
+	  }
+	}
+
+	function addFilter(filterName, filterObj) {
+	  // If we've already had a filter of this name, we need to invalidate
+	  // any and all of the cached results
+	  if (this._filters[filterName]) {
+	    invalidateCacheForFilter.call(this, filterName);
+	  }
+
+	  this._filters[filterName] = filterObj;
+	  this.trigger('filtered:add', filterName);
+	}
+
+	function removeFilter(filterName) {
+	  delete this._filters[filterName];
+	  invalidateCacheForFilter.call(this, filterName);
+	  this.trigger('filtered:remove', filterName);
+	}
+
+	function execFilterOnModel(model) {
+	  if (!this._filterResultCache[model.cid]) {
+	    this._filterResultCache[model.cid] = {};
+	  }
+
+	  var cache = this._filterResultCache[model.cid];
+
+	  for (var filterName in this._filters) {
+	    if (this._filters.hasOwnProperty(filterName)) {
+	      // if we haven't already calculated this, calculate it and cache
+	      if (!cache.hasOwnProperty(filterName)) {
+	        cache[filterName] = this._filters[filterName].fn(model, this._filters[filterName].tokens);
+	      }
+	      if (!cache[filterName]) {
+	        return false;
+	      }
+	    }
+	  }
+	  return true;
+	}
+
+	function execFilter() {
+	  var filtered = [];
+
+	  // Filter the collection
+	  if (this._superset) {
+	    filtered = this._superset.filter(_.bind(execFilterOnModel, this));
+	  }
+
+	  this._collection.reset(filtered);
+	  this.length = this._collection.length;
+	}
+
+	function onAddChange(model) {
+	  // reset the cached results
+	  this._filterResultCache[model.cid] = {};
+
+	  if (execFilterOnModel.call(this, model)) {
+	    if (!this._collection.get(model.cid)) {
+	      var index = this.superset().indexOf(model);
+
+	      // Find the index at which to insert the model in the
+	      // filtered collection by finding the index of the
+	      // previous non-filtered model in the filtered collection
+	      var filteredIndex = null;
+	      for (var i = index - 1; i >= 0; i -= 1) {
+	        if (this.contains(this.superset().at(i))) {
+	          filteredIndex = this.indexOf(this.superset().at(i)) + 1;
+	          break;
+	        }
+	      }
+	      filteredIndex = filteredIndex || 0;
+
+	      this._collection.add(model, { at: filteredIndex });
+	    }
+	  } else {
+	    if (this._collection.get(model.cid)) {
+	      this._collection.remove(model);
+	    }
+	  }
+	  this.length = this._collection.length;
+	}
+
+	// This fires on 'change:[attribute]' events. We only want to
+	// remove this model if it fails the test, but not add it if
+	// it does. If we remove it, it will prevent the 'change'
+	// events from being forwarded, and if we add it, it will cause
+	// an unneccesary 'change' event to be forwarded without the
+	// 'change:[attribute]' that goes along with it.
+	function onModelAttributeChange(model) {
+	  // reset the cached results
+	  this._filterResultCache[model.cid] = {};
+
+	  if (!execFilterOnModel.call(this, model)) {
+	    if (this._collection.get(model.cid)) {
+	      this._collection.remove(model);
+	    }
+	  }
+	}
+
+	function onAll(eventName, model, value) {
+	  if (eventName.slice(0, 7) === "change:") {
+	    onModelAttributeChange.call(this, arguments[1]);
+	  }
+	}
+
+	function onModelRemove(model) {
+	  if (this.contains(model)) {
+	    this._collection.remove(model);
+	  }
+	  this.length = this._collection.length;
+	}
+
+	function Filtered(superset) {
+	  // Save a reference to the original collection
+	  this._superset = superset;
+
+	  // The idea is to keep an internal backbone collection with the filtered
+	  // set, and expose limited functionality.
+	  this._collection = new Backbone.Collection(superset.toArray());
+	  proxyCollection(this._collection, this);
+
+	  // Set up the filter data structures
+	  this.resetFilters();
+
+	  this.listenTo(this._superset, 'reset sort', execFilter);
+	  this.listenTo(this._superset, 'add change', onAddChange);
+	  this.listenTo(this._superset, 'remove', onModelRemove);
+	  this.listenTo(this._superset, 'all', onAll);
+	}
+
+	var methods = {
+
+	  defaultFilterName: '__default',
+
+	  filterBy: function(filterName, filter) {
+	    var filterObj;
+
+	    // Allow the user to skip the filter name if they're only using one filter
+	    if (!filter) {
+	      filter = filterName;
+	      filterName = this.defaultFilterName;
+	    }
+
+	    if (_.isFunction(filter)){
+	      filterObj = { fn: filter };
+	    } else {
+	      filterObj = {
+	        fn: backboneQuery,
+	        tokens: this.parseFilter(filter)
+	      }
+	    }
+
+	    addFilter.call(this, filterName, filterObj);
+
+	    execFilter.call(this);
+	    return this;
+	  },
+
+	  parseFilter: function(filter){
+	    if (_.isArray(filter)) {
+	      return filter;
+	    }
+	    if (_.isString(filter)) {
+	      return parse(filter);
+	    }
+	    if (_.isObject(filter)) {
+	      return _.reduce(filter, function(result, value, key){
+	        result.push({
+	          type: 'prefix',
+	          prefix: key,
+	          query: value
+	        });
+	        return result;
+	      }, []);
+	    }
+	  },
+
+	  removeFilter: function(filterName) {
+	    if (!filterName) {
+	      filterName = this.defaultFilterName;
+	    }
+
+	    removeFilter.call(this, filterName);
+
+	    execFilter.call(this);
+	    return this;
+	  },
+
+	  resetFilters: function() {
+	    this._filters = {};
+	    invalidateCache.call(this);
+
+	    this.trigger('filtered:reset');
+
+	    execFilter.call(this);
+	    return this;
+	  },
+
+	  superset: function() {
+	    return this._superset;
+	  },
+
+	  refilter: function(arg) {
+	    if (typeof arg === "object" && arg.cid) {
+	      // is backbone model, refilter that one
+	      onAddChange.call(this, arg);
+	    } else {
+	      // refilter everything
+	      invalidateCache.call(this);
+	      execFilter.call(this);
+	    }
+
+	    return this;
+	  },
+
+	  getFilters: function() {
+	    return  _.keys(this._filters);
+	  },
+
+	  hasFilter: function(name) {
+	    return _.contains(this.getFilters(), name);
+	  },
+
+	  destroy: function() {
+	    this.stopListening();
+	    this._collection.reset([]);
+	    this._superset = this._collection;
+	    this.length = 0;
+
+	    this.trigger('filtered:destroy');
+	  }
+
+	};
+
+	// Build up the prototype
+	_.extend(Filtered.prototype, methods, Backbone.Events);
+
+	module.exports = Filtered;
+
+
+
+/***/ },
+/* 4 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var _ = __webpack_require__(1);
+	var Backbone = __webpack_require__(2);
+
+	// Methods in the collection prototype that we won't expose
+	var blacklistedMethods = [
+	  "_onModelEvent", "_prepareModel", "_removeReference", "_reset", "add",
+	  "initialize", "sync", "remove", "reset", "set", "push", "pop", "unshift",
+	  "shift", "sort", "parse", "fetch", "create", "model", "off", "on",
+	  "listenTo", "listenToOnce", "bind", "trigger", "once", "stopListening"
+	];
+
+	var eventWhiteList = [
+	  'add', 'remove', 'reset', 'sort', 'destroy', 'sync', 'request', 'error'
+	];
+
+	function proxyCollection(from, target) {
+
+	  function updateLength() {
+	    target.length = from.length;
+	  }
+
+	  function pipeEvents(eventName) {
+	    var args = _.toArray(arguments);
+	    var isChangeEvent = eventName === 'change' ||
+	                        eventName.slice(0, 7) === 'change:';
+
+	    // In the case of a `reset` event, the Collection.models reference
+	    // is updated to a new array, so we need to update our reference.
+	    if (eventName === 'reset') {
+	      target.models = from.models;
+	    }
+
+	    if (_.includes(eventWhiteList, eventName)) {
+	      if (_.includes(['add', 'remove', 'destroy'], eventName)) {
+	        args[2] = target;
+	      } else if (_.includes(['reset', 'sort'], eventName)) {
+	        args[1] = target;
+	      }
+	      target.trigger.apply(this, args);
+	    } else if (isChangeEvent) {
+	      // In some cases I was seeing change events fired after the model
+	      // had already been removed from the collection.
+	      if (target.includes(args[1])) {
+	        target.trigger.apply(this, args);
+	      }
+	    }
+	  }
+
+	  var methods = {};
+
+	  _.each(_.functions(Backbone.Collection.prototype), function(method) {
+	    if (!_.includes(blacklistedMethods, method)) {
+	      methods[method] = function() {
+	        return from[method].apply(from, arguments);
+	      };
+	    }
+	  });
+
+	  _.extend(target, Backbone.Events, methods);
+
+	  target.listenTo(from, 'all', updateLength);
+	  target.listenTo(from, 'all', pipeEvents);
+	  target.models = from.models;
+
+	  updateLength();
+	  return target;
+	}
+
+	module.exports = proxyCollection;
+
+/***/ },
+/* 5 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var _ = __webpack_require__(1);
+
+	function toType(obj) {
+	  return ({}).toString.call(obj).match(/\s([a-z|A-Z]+)/)[1].toLowerCase();
+	}
+
+	/**
+	 * Helper methods for matching tokens
+	 */
+	var methods = {
+
+	  /**
+	   * Token type `string`
+	   * @return {Boolean}
+	   */
+	  string: function(token, model){
+	    token = token || {};
+	    if(!_.isString(token.query)){ return false; }
+
+	    var attributes = _.chain(model.fields || ['title'])
+	      .map(function(key){
+	        return model.get(key); // allows nested get
+	      })
+	      .compact()
+	      .value();
+
+	    var self = this;
+	    return _.some( attributes, function( attribute ) {
+	      return self._partialString(attribute, token.query.toLowerCase());
+	    });
+	  },
+
+	  /**
+	   * Token type `prefix`
+	   * @return {Boolean}
+	   */
+	  prefix: function(token, model){
+	    token = token || {};
+	    if(_.isFunction(token.query)){
+	      return token.query(model.get(token.prefix));
+	    }
+
+	    if(!_.isString(token.query)){
+	      token.query = token.query.toString();
+	    }
+
+	    var attr = model.get(token.prefix),
+	        type = toType(attr);
+
+	    // _boolean, _array etc
+	    if(this.hasOwnProperty('_' + type)){
+	      return this['_' + type](attr, token.query.toLowerCase());
+	    }
+	  },
+
+	  /**
+	   * Token type `or`
+	   * @return {Boolean}
+	   */
+	  or: function(token, model){
+	    var self = this;
+	    return _.some(token.queries, function(t){
+	      return self[t.type](t, model);
+	    });
+	  },
+
+	  _string: function(str, value){
+	    return str.toLowerCase() === value;
+	  },
+
+	  _partialString: function(str, value){
+	    return str.toLowerCase().indexOf( value ) !== -1;
+	  },
+
+	  _number: function(number, value){
+	    return number.toString() === value;
+	  },
+
+	  _partialNumber: function(number, value){
+	    return number.toString().indexOf( value ) !== -1;
+	  },
+
+	  _boolean: function(bool, value){
+	    if(value === 'true'){
+	      return bool === true;
+	    } else if (value === 'false'){
+	      return bool === false;
+	    }
+	    return false;
+	  },
+
+	  _array: function(arr, value){
+	    return _.some(arr, function(elem){
+	      return elem.toLowerCase() === value;
+	    });
+	  }
+
+	};
+
+	module.exports = function(model, filterArray){
+	  // match tokens
+	  // todo: all = AND, any = OR
+	  return _.every(filterArray, function(filter){
+	    return methods[filter.type](filter, model);
+	  });
+	};
+
+/***/ },
+/* 6 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/* jshint -W071, -W074 */
+	var _ = __webpack_require__(1);
+
+	/**
+	 *
+	 * @param options
+	 * @constructor
+	 */
+	function Parser(options){
+	  this.options = options || {};
+	  if (!this.options.instance) {
+	    return this.parse.bind(this);
+	  }
+	}
+
+	/**
+	 * Regex for special characters
+	 */
+	var regex = {
+	  QUOTES      : /['"`]/,       // quotes
+	  SPACES      : /[ \t\r\n]/,   // spaces
+	  FLAGS       : /[~\+#!\*\/]/, // flags
+	  SCREEN      : /[\\]/,        // screen
+	  GROUP_OPEN  : /\(/,          // group openers
+	  GROUP_CLOSE : /\)/,          // group endings
+	  OR          : /\|/,          // logical OR
+	  PREFIX      : /:/,           // divider between prefix and value
+	  RANGE       : /-/,           // divider between values in range
+	  OR_OPEN     : /\[/,          // OR group openers
+	  OR_CLOSE    : /]/            // OR group endings
+	};
+
+	/**
+	 * Returns first regex match for given character
+	 * note: order is important!
+	 * @param character
+	 */
+	function matchRegex(character){
+	  var match;
+
+	  _.some([
+	    'SCREEN',
+	    'OR_OPEN',
+	    'OR_CLOSE',
+	    'GROUP_OPEN',
+	    'GROUP_CLOSE',
+	    'OR',
+	    'PREFIX',
+	    'RANGE',
+	    'SPACES',
+	    'QUOTES',
+	    'FLAGS'
+	  ], function(key){
+	    if(regex[key].test(character)){
+	      match = key;
+	      return true;
+	    } else {
+	      match = undefined;
+	      return false;
+	    }
+	  });
+
+	  return match;
+	}
+
+	/**
+	 *
+	 */
+	function logicalOr(parts){
+	  var p2 = parts.pop(),
+	      p1 = parts.pop();
+
+	  parts.push({
+	    type: 'or',
+	    queries: [ p1, p2 ]
+	  });
+	}
+
+	/**
+	 *
+	 * @param options
+	 */
+	function appendPart(opts){
+	  var part = opts.part || {};
+
+	  if(!opts.hasarg){ return; }
+
+	  if (['range', 'prange'].indexOf(part.type) >= 0) {
+	    if(opts.buffer && _.isNaN(parseFloat(opts.buffer))){
+	      part = {};
+	      part.type = 'string';
+	      part.query = '-' + opts.buffer;
+	    } else {
+	      part.to = opts.buffer;
+	    }
+	  } else if (opts.buffer && opts.buffer.length) {
+	    part.query = opts.buffer;
+	  }
+
+	  if (!part.type) {
+	    part.type = part.prefix ? 'prefix' : 'string';
+	  }
+
+	  opts.parts.push(part);
+
+	  if (opts.or_at_next_arg && (opts.or_at_next_arg + 1 === opts.parts.length)){
+	    logicalOr(opts.parts);
+	    opts.or_at_next_arg = 0;
+	  }
+
+	  opts.part = {};
+	  opts.buffer = '';
+	  opts.hasarg = false;
+
+	}
+
+	/**
+	 *
+	 * @param options
+	 * @param quote
+	 */
+	function inQuote(opts, quote){
+	  if(this._input.length === 0){
+	    return;
+	  }
+
+	  opts.character = this._input.shift();
+
+	  if (opts.character === quote) {
+	    appendPart.call(this, opts);
+	  } else {
+	    opts.buffer += opts.character;
+	    opts.hasarg = true;
+	    inQuote.call(this, opts, quote);
+	  }
+	}
+
+	/**
+	 *
+	 */
+	var matches = {
+
+	  screen: function(opts){
+	    opts.screen = true;
+	  },
+
+	  or_open: function(opts){
+	    if (opts.hasarg) {
+	      opts.buffer += opts.character;
+	    } else {
+	      opts.part.type = 'or';
+	      opts.part.queries = this.parse(this._input.join(''), true);
+	      if (opts.part.queries && opts.part.queries.length) {
+	        opts.hasarg = true;
+	        appendPart.call(this, opts);
+	      }
+	    }
+	  },
+
+	  or_close: function(opts){
+	    opts.close = true;
+	  },
+
+	  group_open: function(opts){
+	    if (opts.hasarg) {
+	      opts.buffer += opts.character;
+	    } else {
+	      opts.part.type = 'and';
+	      opts.part.queries = this.parse(this._input.join(''), true);
+	      if (opts.part.queries && opts.part.queries.length) {
+	        opts.hasarg = true;
+	        appendPart.call(this, opts);
+	      }
+	    }
+	  },
+
+	  group_close: function(opts){
+	    if(opts.open){
+	      opts.close = true;
+	      opts.open = undefined;
+	    } else {
+	      opts.buffer += opts.character;
+	    }
+	  },
+
+	  or: function(opts){
+	    opts.or_at_next_arg = opts.parts.length;
+	    if (opts.hasarg) {
+	      opts.or_at_next_arg += 1;
+	      appendPart.call(this, opts);
+	    }
+	  },
+
+	  prefix: function(opts){
+	    opts.part.prefix = opts.buffer;
+	    opts.part.type = 'prefix';
+	    opts.buffer = '';
+	    opts.hasarg = true;
+	  },
+
+	  range: function(opts){
+	    if(opts.buffer && _.isNaN(parseFloat(opts.buffer))){
+	      opts.buffer += opts.character;
+	      return;
+	    }
+	    if (opts.part.type && (opts.part.type === 'prefix')) {
+	      opts.part.type = 'prange';
+	    } else {
+	      opts.part.type = 'range';
+	    }
+	    opts.part.from = opts.buffer;
+	    opts.buffer = '';
+	    opts.hasarg = true;
+	  },
+
+	  spaces: function(opts){
+	    appendPart.call(this, opts);
+	  },
+
+	  quotes: function(opts){
+	    if (opts.buffer.length) {
+	      opts.buffer += opts.character;
+	      opts.hasarg = true;
+	    } else {
+	      inQuote.call(this, opts, opts.character);
+	    }
+	  },
+
+	  flags: function(opts){
+	    if (!opts.buffer.length) {
+	      if (!opts.part.flags) { opts.part.flags = []; }
+	      opts.part.flags.push(opts.character);
+	    } else {
+	      opts.buffer += opts.character;
+	    }
+	  }
+	};
+
+	/**
+	 *
+	 * @param options
+	 */
+	function next(opts){
+	  opts.character = this._input.shift();
+	  var match = matchRegex.call(this, opts.character);
+	  if(match && !opts.screen){
+	    matches[match.toLowerCase()].call(this, opts);
+	  } else {
+	    opts.buffer += opts.character;
+	    opts.hasarg = true;
+	    opts.screen = false;
+	  }
+	  if(this._input.length > 0 && !opts.close){
+	    next.call(this, opts);
+	  } else {
+	    opts.close = undefined;
+	    return;
+	  }
+	}
+
+	Parser.prototype.parse = function(input, open) {
+	  var opts = {
+	    parts   : [],
+	    part    : {},
+	    open    : open,
+	    buffer  : '',
+	    hasarg  : false
+	  };
+
+	  if (!input || !input.length || (typeof input !== 'string')) {
+	    return opts.parts;
+	  }
+
+	  this._input = input.split('');
+	  next.call(this, opts);
+	  appendPart.call(this, opts);
+	  return opts.parts;
+	};
+
+	module.exports = Parser;
+	/* jshint +W071, +W074 */
+
+/***/ },
+/* 7 */
+/***/ function(module, exports, __webpack_require__) {
+
+	
+	var _ = __webpack_require__(1);
+	var Backbone =__webpack_require__(2);
+	var proxyCollection = __webpack_require__(4);
+	var sortedIndex = __webpack_require__(8);
+
+	function lookupIterator(value) {
+	  return _.isFunction(value) ? value : function(obj){ return obj.get(value); };
+	}
+
+	function modelInsertIndex(model) {
+	  if (!this._comparator) {
+	    return this._superset.indexOf(model);
+	  } else {
+	    return sortedIndex(this._collection.models, model, lookupIterator(this._comparator), this._reverse);
+	  }
+	}
+
+	function onAdd(model) {
+	  var index = modelInsertIndex.call(this, model);
+	  this._collection.add(model, { at: index });
+	}
+
+	function onRemove(model) {
+	  if (this.contains(model)) {
+	    this._collection.remove(model);
+	  }
+	}
+
+	function onChange(model) {
+	  if (this.contains(model) && this._collection.indexOf(model) !== modelInsertIndex.call(this, model)) {
+	    this._collection.remove(model);
+	    onAdd.call(this, model);
+	  }
+	}
+
+	function sort() {
+	  if (!this._comparator) {
+	    this._collection.reset(this._superset.toArray());
+	    return;
+	  }
+
+	  // Evaluate the type of comparator based on http://backbonejs.org/#Collection-comparator
+	  var newOrder;
+	  if (_.isString(this._comparator) || this._comparator.length === 1) {
+	    newOrder = this._superset.sortBy(this._comparator);
+	  } else {
+	    newOrder = this._superset.models.sort(this._comparator);
+	  }
+	  this._collection.reset(this._reverse ? newOrder.reverse() : newOrder);
+	}
+
+	function Sorted(superset) {
+	  // Save a reference to the original collection
+	  this._superset = superset;
+	  this._reverse = false;
+	  this._comparator = null;
+
+	  // The idea is to keep an internal backbone collection with the paginated
+	  // set, and expose limited functionality.
+	  this._collection = new Backbone.Collection(superset.toArray());
+	  proxyCollection(this._collection, this);
+
+	  this.listenTo(this._superset, 'add', onAdd);
+	  this.listenTo(this._superset, 'remove', onRemove);
+	  this.listenTo(this._superset, 'change', onChange);
+	  this.listenTo(this._superset, 'reset', sort);
+	}
+
+	var methods = {
+
+	  setSort: function(comparator, direction) {
+	    this._reverse = direction === 'desc' ? true : false;
+	    this._comparator = comparator;
+
+	    sort.call(this);
+
+	    if (!comparator) {
+	      this.trigger('sorted:remove');
+	    } else {
+	      this.trigger('sorted:add');
+	    }
+
+	    return this;
+	  },
+
+	  reverseSort: function() {
+	    this._reverse = !this._reverse;
+	    sort.call(this);
+
+	    return this;
+	  },
+
+	  removeSort: function() {
+	    this.setSort();
+	    return this;
+	  },
+
+	  superset: function() {
+	    return this._superset;
+	  },
+
+	  destroy: function() {
+	    this.stopListening();
+	    this._collection.reset([]);
+	    this._superset = this._collection;
+	    this.length = 0;
+
+	    this.trigger('sorted:destroy');
+	  }
+
+	};
+
+	// Build up the prototype
+	_.extend(Sorted.prototype, methods, Backbone.Events);
+
+	module.exports = Sorted;
+
+
+
+/***/ },
+/* 8 */
+/***/ function(module, exports, __webpack_require__) {
+
+	
+	var _ = __webpack_require__(1);
+
+	// Underscore provides a .sortedIndex function that works
+	// when sorting ascending based on a function or a key, but there's no
+	// way to do the same thing when sorting descending. This is a slight
+	// modification of the underscore / backbone code to do the same thing
+	// but descending.
+
+	function comparatorAdapter(fieldExtractor, reverse) {
+	  return function(left, right) {
+	    var l = fieldExtractor(left);
+	    var r = fieldExtractor(right);
+
+	    if(l === r) return 0;
+
+	    return reverse ? (l < r ? 1 : -1) : (l < r ? -1 : 1);
+	  };
+	}
+
+	function lookupIterator(value, reverse) {
+	  return value.length === 2 ? value : comparatorAdapter(value, reverse);
+	}
+
+	function sortedIndex(array, obj, iterator, reverse) {
+	  iterator = iterator === null ? _.identity : lookupIterator(iterator, reverse);
+
+	  var low = 0, high = array.length;
+	  while (low < high) {
+	      var mid = (low + high) >>> 1;
+	    if(iterator(array[mid], obj) < 0) {
+	      low = mid + 1;
+	    } else {
+	      high = mid;
+	    }
+	  }
+
+	  return low;
+	}
+
+	module.exports = sortedIndex;
+
+
+/***/ },
+/* 9 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var _ = __webpack_require__(1);
+	var Backbone = __webpack_require__(2);
+	var proxyCollection = __webpack_require__(4);
+
+	function getPageLimits() {
+	  if(this._infinite){
+	    var start = 0;
+	    var end = this._collection.length;
+	  } else {
+	    var start = this.getPage() * this.getPerPage();
+	    var end = start + this.getPerPage();
+	  }
+	  return [start, end];
+	}
+
+	function updatePagination() {
+	  var pages = getPageLimits.call(this);
+	  return this._collection.reset(this.superset().slice(pages[0], pages[1]));
+	}
+
+	function infintePagination() {
+	  var start = 0;
+	  var end = this._collection.length + this.getPerPage();
+	  return this._collection.add(this.superset().slice(start, end));
+	}
+
+	function calcPages() {
+	  var perPage = this.getPerPage();
+	  var length = this.superset().length - this._collection.length;
+
+	  var totalPages = length % perPage === 0 ?
+	    (length / perPage) : Math.floor(length / perPage) + 1;
+
+	  return totalPages + 1;
+	}
+
+	function updateNumPages() {
+	  var length = this.superset().length;
+	  var perPage = this.getPerPage();
+
+	  // If the # of objects can be exactly divided by the number
+	  // of pages, it would leave an empty last page if we took
+	  // the floor.
+	  var totalPages = length % perPage === 0 ?
+	    (length / perPage) : Math.floor(length / perPage) + 1;
+
+	  var numPagesChanged = this._totalPages !== totalPages;
+	  this._totalPages = totalPages;
+
+	  if (numPagesChanged) {
+	    this.trigger('paginated:change:numPages', { numPages: totalPages });
+	  }
+
+	  // Test to see if we are past the last page, and if so,
+	  // move back. Return true so that we can test to see if
+	  // this happened.
+	  if (this.getPage() >= totalPages) {
+	    this.setPage(totalPages - 1);
+	    return true;
+	  }
+	}
+
+	function recalculatePagination() {
+	  // reset infinite page
+	  this._infinite = false;
+
+	  if (updateNumPages.call(this)) { return; }
+	  updatePagination.call(this);
+	}
+
+	// Given two arrays of backbone models, with at most one model added
+	// and one model removed from each, return the model in arrayA that
+	// is not in arrayB or undefined.
+	function difference(arrayA, arrayB) {
+	  var maxLength = _.max([ arrayA.length, arrayB.length ]);
+
+	  for (var i = 0, j = 0; i < maxLength; i += 1, j += 1) {
+	    if (arrayA[i] !== arrayB[j]) {
+	      if (arrayB[i-1] === arrayA[i]) {
+	        j -= 1;
+	      } else if (arrayB[i+1] === arrayA[i]) {
+	        j += 1;
+	      } else {
+	        return arrayA[i];
+	      }
+	    }
+	  }
+	}
+
+	function onAddRemove(model, collection, options) {
+	  if (updateNumPages.call(this)) { return; }
+
+	  var pages = getPageLimits.call(this);
+	  var start = pages[0], end = pages[1];
+
+	  // We are only adding and removing at most one model at a time,
+	  // so we can find just those two models. We could probably rewrite
+	  // `collectionDifference` to only make on pass instead of two. This
+	  // is a bottleneck on the total size of collections. I was getting
+	  // slow unit tests around 30,000 models / page in Firefox.
+	  var toAdd = difference(this.superset().slice(start, end), this._collection.toArray());
+
+	  var infinite = this._infinite && options.add;
+	  var toRemove;
+
+	  if(!infinite){
+	    toRemove = difference(this._collection.toArray(), this.superset().slice(start, end));
+	  }
+
+	  if (toRemove) {
+	    this._collection.remove(toRemove);
+	  }
+
+	  if (toAdd) {
+	    this._collection.add(toAdd, {
+	      at: this.superset().indexOf(toAdd) - start
+	    });
+	  }
+	};
+
+	function Paginated(superset, options) {
+	  // Save a reference to the original collection
+	  this._superset = superset;
+
+	  // The idea is to keep an internal backbone collection with the paginated
+	  // set, and expose limited functionality.
+	  this._collection = new Backbone.Collection(superset.toArray());
+	  this._page = 0;
+	  this.setPerPage((options && options.perPage) ? options.perPage : null);
+
+	  proxyCollection(this._collection, this);
+
+	  this.listenTo(this._superset, 'add remove', onAddRemove);
+	  this.listenTo(this._superset, 'reset sort', recalculatePagination);
+	}
+
+	var methods = {
+
+	  removePagination: function() {
+	    this._infinite = false;
+	    this.setPerPage(null);
+	    return this;
+	  },
+
+	  setPerPage: function(perPage) {
+	    this._perPage = perPage;
+	    recalculatePagination.call(this);
+	    this.setPage(0);
+
+	    this.trigger('paginated:change:perPage', {
+	      perPage: perPage,
+	      numPages: this.getNumPages()
+	    });
+
+	    return this;
+	  },
+
+	  setPage: function(page) {
+
+	    // reset infinite page
+	    this._infinite = false;
+
+	    // The lowest page we could set
+	    var lowerLimit = 0;
+	    // The highest page we could set
+	    var upperLimit = this.getNumPages() - 1;
+
+	    // If the page is higher or lower than these limits,
+	    // set it to the limit.
+	    page = page > lowerLimit ? page : lowerLimit;
+	    page = page < upperLimit ? page : upperLimit;
+	    page = page < 0 ? 0 : page;
+
+	    this._page = page;
+	    updatePagination.call(this);
+
+	    this.trigger('paginated:change:page', { page: page });
+	    return this;
+	  },
+
+	  getPerPage: function() {
+	    return this._perPage || this.superset().length || 1;
+	  },
+
+	  getNumPages: function() {
+	    if(this._infinite){
+	      return calcPages.call(this);
+	    } else {
+	      return this._totalPages;
+	    }
+	  },
+
+	  getPage: function() {
+	    return this._page;
+	  },
+
+	  hasNextPage: function() {
+	    return this.getPage() < this.getNumPages() - 1;
+	  },
+
+	  hasPrevPage: function() {
+	    return this.getPage() > 0;
+	  },
+
+	  nextPage: function() {
+	    this.movePage(1);
+	    return this;
+	  },
+
+	  prevPage: function() {
+	    this.movePage(-1);
+	    return this;
+	  },
+
+	  firstPage: function() {
+	    this.setPage(0);
+	  },
+
+	  lastPage: function() {
+	    this.setPage(this.getNumPages() - 1);
+	  },
+
+	  movePage: function(delta) {
+	    this.setPage(this.getPage() + delta);
+	    return this;
+	  },
+
+	  superset: function() {
+	    return this._superset;
+	  },
+
+	  destroy: function() {
+	    this.stopListening();
+	    this._collection.reset([]);
+	    this._superset = this._collection;
+	    this._page = 0;
+	    this._totalPages = 0;
+	    this.length = 0;
+	    this._infinite = false;
+
+	    this.trigger('paginated:destroy');
+	  },
+
+	  // infinite scroll
+	  appendNextPage: function(){
+	    this._infinite = true;
+	    infintePagination.call(this);
+	    this.trigger('paginated:change:page', { page: 0 });
+	    return this;
+	  }
+
+	};
+
+	// Build up the prototype
+	_.extend(Paginated.prototype, methods, Backbone.Events);
+
+	module.exports =  Paginated;
+
+/***/ },
+/* 10 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var _ = __webpack_require__(1);
+
+	function proxyEvents(from, eventNames) {
+	  _.each(eventNames, function(eventName) {
+	    this.listenTo(from, eventName, function() {
+	      var args = _.toArray(arguments);
+	      args.unshift(eventName);
+	      this.trigger.apply(this, args);
+	    });
+	  }, this);
+	}
+
+	module.exports = proxyEvents;
+
+
+/***/ }
+/******/ ])
+});
+;

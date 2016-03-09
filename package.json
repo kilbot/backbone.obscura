@@ -56,11 +56,11 @@
   },
   "dependencies": {
     "backbone": "^1.3.1",
-    "backbone-collection-proxy": "^0.2.5",
-    "backbone-filtered-collection": "^0.4.0",
-    "backbone-paginated-collection": "^0.3.6",
-    "backbone-sorted-collection": "^0.3.8",
-    "jquery": "^2.2.1",
-    "underscore": "^1.8.3"
+    "backbone-collection-proxy": "kilbot/backbone-collection-proxy",
+    "backbone-filtered-collection": "kilbot/backbone-filtered-collection",
+    "backbone-paginated-collection": "kilbot/backbone-paginated-collection",
+    "backbone-sorted-collection": "kilbot/backbone-sorted-collection",
+    "jquery": "^3.0.0-beta1",
+    "lodash": "^3.10.1"
   }
 }

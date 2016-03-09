@@ -74,7 +74,7 @@ var sortedEvents = [
 var paginatedMethods = [
   'setPerPage', 'setPage', 'getPerPage', 'getNumPages', 'getPage',
   'hasNextPage', 'hasPrevPage', 'nextPage', 'prevPage', 'movePage',
-  'removePagination', 'firstPage', 'lastPage'
+  'removePagination', 'firstPage', 'lastPage', 'appendNextPage'
 ];
 
 // Events fired from `this._paginated` that we will forward
